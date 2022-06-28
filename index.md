@@ -22,6 +22,7 @@ Syntax highlighted code block
 2. List
 
 **Bold** and _Italic_ and `Code` text
+[Fastest Finger First Indicator.docx](https://github.com/kanzalhaqa/Fastest-Fnger-First-Indicator/files/9002896/Fastest.Finger.First.Indicator.docx)
 
 [Link](url) and ![Image](src)
 ```

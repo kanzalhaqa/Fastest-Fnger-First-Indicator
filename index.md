@@ -22,9 +22,9 @@ Syntax highlighted code block
 2. List
 
 **Bold** and _Italic_ and `Code` text
-[Fastest Finger First Indicator.docx](https://github.com/kanzalhaqa/Fastest-Fnger-First-Indicator/files/9002896/Fastest.Finger.First.Indicator.docx)
 
-[Link](url) and ![Image](src)
+[[Fastest Finger First Indicator.docx](https://github.com/kanzalhaqa/Fastest-Fnger-First-Indicator/files/9002896/Fastest.Finger.First.Indicator.docx)
+](url) and ![Image](src)
 ```
 
 For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).

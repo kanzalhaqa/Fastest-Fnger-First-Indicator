@@ -1,0 +1,29 @@
+C51 COMPILER V9.60.0.0   I2C                                                               06/16/2022 23:03:40 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\Objects\i2c.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE i2c.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\i2c.l
+                    -st) TABS(2) OBJECT(.\Objects\i2c.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "I2C.h"
+   3          
+   4          sbit SCL=P3^6;
+*** ERROR C231 IN LINE 4 OF i2c.c: 'SCL': redefinition
+   5          sbit SDA=P3^7;
+*** ERROR C231 IN LINE 5 OF i2c.c: 'SDA': redefinition
+   6          
+   7          void I2C_Clock(void)
+   8          {
+   9   1        delay(.001);
+  10   1        SCL=1;
+  11   1        
+  12   1        delay(.001);
+  13   1        SCL=0;
+  14   1      }
+*** ERROR C237 IN LINE 14 OF i2c.c: 'I2C_Clock': function already has a body
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  3 ERROR(S)

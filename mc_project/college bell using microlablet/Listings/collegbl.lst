@@ -1,0 +1,501 @@
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE COLLEGBL
+OBJECT MODULE PLACED IN .\Objects\collegbl.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE collegbl.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -collegbl.lst) TABS(2) OBJECT(.\Objects\collegbl.obj)
+
+line level    source
+
+   1          #include <MicroLABlet.h>
+   2          #include <readkey.c>
+   3          #define control_register 0x00
+   4          #define data_register 0x01
+   5          #define LCD_data P1
+   6          #define first_line 0x80
+   7          #define second_line 0xC0
+   8          
+   9          sbit LCD_enable=P3^7;
+  10          sbit LCD_register_select=P3^6;
+  11          sbit press_1=P3^4;
+  12          sbit press_0=P3^2;
+  13          sbit relay_control_signal=P2^0;
+  14          enable=0;
+  15          
+  16          unsigned char message_three[]={"BackUp :press S1"};
+  17          unsigned char message_four[] ={"SetTime:press S4"};
+  18          unsigned char message_five[] ={"Date -01/01/2022"};
+  19          unsigned char message_six[]  ={"Time - 00:00:00 "};
+  20          unsigned char ascii[]="0123456789";
+  21          
+  22          unsigned char check,HourH,HourL,DateH,DateL,MonthH,MonthL,YearH,YearL,MinH,MinL,SecH,SecL,SetHH4B=0,SetHL4
+             -B=0,SetMH4B=0,SetML4B=0,SetSH4B=0,SetSL4B=0;
+  23          unsigned char  cursor_count=0x86; 
+  24          unsigned char flag=0;
+  25          
+  26          void LCD_Initialization();
+  27          void LCD_command_write(unsigned char command_value);
+  28          void LCD_message_write(unsigned char message_charactor);
+  29          
+  30          void main ()
+  31           {
+  32   1          unsigned char charactor_count;
+  33   1      
+  34   1          LCD_Initialization();
+  35   1         
+  36   1          charactor_count=0;
+  37   1          LCD_command_write(0X80);
+  38   1            while(message_three[charactor_count]!='\0')
+  39   1              {
+  40   2                LCD_message_write(message_three[charactor_count]);
+  41   2                charactor_count++;
+  42   2              }
+  43   1              
+  44   1          charactor_count=0;
+  45   1          LCD_command_write(0XC0);
+  46   1            while(message_four[charactor_count]!='\0')
+  47   1              {
+  48   2                LCD_message_write(message_four[charactor_count]);
+  49   2                charactor_count++;
+  50   2              }
+  51   1              
+  52   1       while(1)
+  53   1        {
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 2   
+
+  54   2          if(press_1==1 | press_0==0)
+  55   2            {
+  56   3              break;
+  57   3            }
+  58   2        }
+  59   1        
+  60   1       while(1)
+  61   1        {
+  62   2          if(press_1==1)
+  63   2            {
+  64   3              flag=1;
+  65   3            }
+  66   2            
+  67   2          if(press_0==0)
+  68   2            {
+  69   3              flag=0;
+  70   3            }
+  71   2            
+  72   2          if(flag==1)
+  73   2            { 
+  74   3              charactor_count=0;
+  75   3              LCD_command_write(0X80);
+  76   3              while(message_five[charactor_count]!='\0')
+  77   3                {
+  78   4                  LCD_message_write(message_five[charactor_count]);
+  79   4                  charactor_count++;
+  80   4                }
+  81   3                
+  82   3              charactor_count=0;
+  83   3              LCD_command_write(0XC0);
+  84   3              while(message_six[charactor_count]!='\0')
+  85   3                {
+  86   4                  LCD_message_write(message_six[charactor_count]);
+  87   4                  charactor_count++;
+  88   4                }
+  89   3              goto timeSection;
+  90   3            }
+  91   2      
+  92   2          if(flag==0)
+  93   2            {
+  94   3              charactor_count=0;
+  95   3              LCD_command_write(0X80);
+  96   3                while(message_five[charactor_count]!='\0')
+  97   3                  {
+  98   4                    LCD_message_write(message_five[charactor_count]);
+  99   4                    charactor_count++;
+ 100   4                  }
+ 101   3                  
+ 102   3              charactor_count=0;
+ 103   3              LCD_command_write(0XC0);
+ 104   3                while(message_six[charactor_count]!='\0')
+ 105   3                  {
+ 106   4                    LCD_message_write(message_six[charactor_count]);
+ 107   4                    charactor_count++;
+ 108   4                  } 
+ 109   3       
+ 110   3              for(cursor_count=0x86;cursor_count<=0xCF;cursor_count++)
+ 111   3                {
+ 112   4                  LCD_command_write(cursor_count);  
+ 113   4                  LCD_command_write(0X0f);
+ 114   4                  delay(500);
+ 115   4                  key_value=readkey();
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 3   
+
+ 116   4                  LCD_command_write(cursor_count);
+ 117   4                  LCD_message_write(ascii[key_value]);
+ 118   4                    if (cursor_count==0x86)
+ 119   4                      {
+ 120   5                        DateH=key_value;
+ 121   5                      }
+ 122   4                    if (cursor_count==0x87)
+ 123   4                      {
+ 124   5                        DateL=key_value;       
+ 125   5                      }    
+ 126   4                    if (cursor_count==0x89)
+ 127   4                      {
+ 128   5                        MonthH=key_value;
+ 129   5                      }
+ 130   4                    if (cursor_count==0x8A)
+ 131   4                      {
+ 132   5                        MonthL=key_value;
+ 133   5                        cursor_count=0xC6;
+ 134   5                      }    
+ 135   4                    if (cursor_count==0xC7)
+ 136   4                      {
+ 137   5                        HourH=key_value;
+ 138   5                      }
+ 139   4                    if (cursor_count==0xC8)
+ 140   4                      {
+ 141   5                        HourL=key_value;
+ 142   5                      }
+ 143   4                    if (cursor_count==0xCA)
+ 144   4                      {
+ 145   5                        MinH=key_value;
+ 146   5                      }
+ 147   4                    if (cursor_count==0xCB)
+ 148   4                      {
+ 149   5                        MinL=key_value;
+ 150   5                      }    
+ 151   4                    if(cursor_count==0xCB)
+ 152   4                      {
+ 153   5                        cursor_count=0XCF;
+ 154   5                        LCD_command_write(cursor_count);
+ 155   5                      }
+ 156   4                    if(cursor_count==0x87 | cursor_count==0x8A | cursor_count==0xC8 |cursor_count==0xCB )
+ 157   4                      {
+ 158   5                        cursor_count++;
+ 159   5                      }
+ 160   4                    if(cursor_count==0xCF)
+ 161   4                      {
+ 162   5                        for(check=0;check<(check+1);check++)
+ 163   5                          {  
+ 164   6                            if(check==0)
+ 165   6                              {
+ 166   7                                if(DateH>3)
+ 167   7                                  { 
+ 168   8                                    cursor_count=0x85;
+ 169   8                                    LCD_command_write(cursor_count);
+ 170   8                                    break;
+ 171   8                                  }
+ 172   7                                else{check=0;}
+ 173   7                              }
+ 174   6                              
+ 175   6                            if(check==1)
+ 176   6                              {
+ 177   7                                if(DateH==3 & DateL>1)
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 4   
+
+ 178   7                                  { 
+ 179   8                                    cursor_count=0x86;
+ 180   8                                    LCD_command_write(cursor_count);
+ 181   8                                    break;
+ 182   8                                  }
+ 183   7                                else{check=1;}
+ 184   7                              }
+ 185   6          
+ 186   6                            if(check==2)
+ 187   6                              {
+ 188   7                                if(DateH==0 & DateL==0)
+ 189   7                                  { 
+ 190   8                                    cursor_count=0x86;
+ 191   8                                    LCD_command_write(cursor_count);
+ 192   8                                    break;
+ 193   8                                  }
+ 194   7                                else{check=2;}
+ 195   7                              }
+ 196   6                              
+ 197   6                            if(check==3)
+ 198   6                              {
+ 199   7                                if(MonthH>1)
+ 200   7                                  { 
+ 201   8                                    cursor_count=0x88;
+ 202   8                                    LCD_command_write(cursor_count);
+ 203   8                                    break;
+ 204   8                                  }
+ 205   7                                else{check=3;}
+ 206   7                              }
+ 207   6                              
+ 208   6                            if(check==4)
+ 209   6                              {
+ 210   7                                if(MonthH==1 & MonthL>2)
+ 211   7                                  { 
+ 212   8                                    cursor_count=0x89;
+ 213   8                                    LCD_command_write(cursor_count);
+ 214   8                                    break;
+ 215   8                                  }
+ 216   7                                else{check=4;}
+ 217   7                              }
+ 218   6      
+ 219   6                            if(check==5)
+ 220   6                              {
+ 221   7                                if(MonthH==0 & MonthL==0)
+ 222   7                                  { 
+ 223   8                                    cursor_count=0x89;
+ 224   8                                    LCD_command_write(cursor_count);
+ 225   8                                    break;
+ 226   8                                  }
+ 227   7                                else{check=5;}
+ 228   7                              }
+ 229   6                              
+ 230   6                            if(check==6)
+ 231   6                              {
+ 232   7                                if(HourH>2)
+ 233   7                                  { 
+ 234   8                                    cursor_count=0xC6;
+ 235   8                                    LCD_command_write(cursor_count);
+ 236   8                                    break;
+ 237   8                                  }
+ 238   7                                else{check=6;}
+ 239   7                              }
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 5   
+
+ 240   6                             
+ 241   6                            if(check==6)
+ 242   6                              {
+ 243   7                                if(HourH==2 & HourL>3)
+ 244   7                                  { 
+ 245   8                                    cursor_count=0xC7;
+ 246   8                                    LCD_command_write(cursor_count);
+ 247   8                                    break;
+ 248   8                                  }
+ 249   7                                else{check=6;}
+ 250   7                              }
+ 251   6                            
+ 252   6                            if(check==7)
+ 253   6                              {
+ 254   7                                if(MinH>5)
+ 255   7                                  { 
+ 256   8                                    cursor_count=0xC9;
+ 257   8                                    LCD_command_write(cursor_count);
+ 258   8                                    break;
+ 259   8                                  }
+ 260   7                                else{check=7;}
+ 261   7                              }
+ 262   6      
+ 263   6                            if(check==8)
+ 264   6                              { 
+ 265   7                                timeSection:
+ 266   7                 
+ 267   7                                  flag=11;
+ 268   7                                  LCD_command_write(0x0C);
+ 269   7                                  while(1)
+ 270   7                                    {
+ 271   8                                      /////////Hour H//////////
+ 272   8                                      for(HourH=HourH;HourH<3;HourH++)
+ 273   8                                        {  
+ 274   9                                      //////////// Hour LLLLLLLLLLLL/////////////////    
+ 275   9                                          for(HourL=HourL;HourL<10;HourL++)
+ 276   9                                            {
+ 277  10                                              ///////// Minute H /////////////////////////
+ 278  10                                              for(MinH=MinH;MinH<6;MinH++)
+ 279  10                                                {     
+ 280  11                                                  //////Minute LLLLLLLLLLLLL///////////////////////
+ 281  11                                                  for(MinL=MinL;MinL<10;MinL++)
+ 282  11                                                    {    
+ 283  12                                                    ///////////// Sec H  HHHH//////////////
+ 284  12                                                      for(SecH=0;SecH<6;SecH++)
+ 285  12                                                        {  
+ 286  13                                                          //////////   Sec LLLLLLL//////
+ 287  13                                                          for(SecL=0;SecL<10;SecL++)
+ 288  13                                                            {  
+ 289  14                                                              LCD_command_write(0xCE);
+ 290  14                                                              LCD_message_write(ascii[SecL]);
+ 291  14                                                              delay(910);
+ 292  14                                                                if((HourL==SetHL4B &  MinL==(SetML4B+1) & SecH==(SetSH4B+1))&(HourH==SetHH4B 
+             -&  MinH==SetMH4B & SecL<=SetSH4B))
+ 293  14                                                                  {  enable=0;
+ 294  15                                                                    if(enable==0)
+ 295  15                                                                      {
+ 296  16                                                                        for(check=0;check<1;check++)
+ 297  16                                                                          {
+ 298  17                                                                            relay_control_signal=enable;
+ 299  17                                                                            delay(910);
+ 300  17                                                                            relay_control_signal=1;
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 6   
+
+ 301  17                                                                            enable=1;
+ 302  17                                                                            SecL++;
+ 303  17                                                                          }
+ 304  16                                                                      }
+ 305  15                                                                      SetML4B++;
+ 306  15                                                                    }
+ 307  14                       
+ 308  14                                                                if((HourL==9 &  MinL==0 & SecH==1)&(HourH==0 &  MinH==0 & SecL<=1))
+ 309  14                                                                  {  enable=0;
+ 310  15                                                                    if(enable==0)
+ 311  15                                                                      {
+ 312  16                                                                        for(check=0;check<1;check++)
+ 313  16                                                                          {
+ 314  17                                                                            relay_control_signal=enable;
+ 315  17                                                                            delay(910);
+ 316  17                                                                            relay_control_signal=1;
+ 317  17                                                                            enable=1;
+ 318  17                                                                            SecL++;
+ 319  17                                                                          }
+ 320  16                                                                      }
+ 321  15                                                                      SetML4B++;
+ 322  15                                                                    }
+ 323  14                                                                                                                          
+ 324  14                                                              }
+ 325  13                                                            //////////   Sec LLLLLLL////////      
+ 326  13                                                            if(flag==11)
+ 327  13                                                              {
+ 328  14                                                                SecH++;
+ 329  14                                                                flag=22;
+ 330  14                                                              }
+ 331  13                                                          LCD_command_write(0xCD);
+ 332  13                                                          LCD_message_write(ascii[SecH]);
+ 333  13                                                          LCD_command_write(0xCE);
+ 334  13                                                          SecL=0;
+ 335  13                                                          LCD_message_write(ascii[SecL]);
+ 336  13                 
+ 337  13                                                          if(flag==33)
+ 338  13                                                        {
+ 339  14                                                           MinL--;
+ 340  14                                                            if(MinH==5)
+ 341  14                                                              {
+ 342  15                                                                MinH=0;
+ 343  15                                                              }else{MinH++;}
+ 344  14                                                              
+ 345  14                                                         LCD_command_write(0xCB);
+ 346  14                                                         LCD_message_write(ascii[MinL]); 
+ 347  14                                                           flag=44;
+ 348  14                                                         }
+ 349  13                                                         else 
+ 350  13                                                         {
+ 351  14                                                         LCD_command_write(0xCB);
+ 352  14                                                         LCD_message_write(ascii[MinL]);
+ 353  14      
+ 354  14                                                         LCD_command_write(0xCA);
+ 355  14                                                         LCD_message_write(ascii[MinH]);             
+ 356  14                                                         }
+ 357  13      
+ 358  13                                                         if(flag==44)
+ 359  13                                                         {
+ 360  14                                                         LCD_command_write(0xCA);
+ 361  14                                                         LCD_message_write(ascii[MinH]);
+ 362  14                                                           
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 7   
+
+ 363  14                                                         }
+ 364  13                                                         
+ 365  13                                                         
+ 366  13                                                         if(flag==55)
+ 367  13                                                            {
+ 368  14                                                              LCD_command_write(0xCA);
+ 369  14                                                              LCD_message_write(ascii[MinH]); 
+ 370  14                                                            }
+ 371  13                                                         
+ 372  13                                                
+ 373  13                                                         if(MinL==0 & MinH==0 & SecH==0 & SecL==0)
+ 374  13                                                         {
+ 375  14                                                             if(HourL==9)
+ 376  14                                                               {
+ 377  15                                                                 HourL=0;
+ 378  15                                                                 HourH++;
+ 379  15                                                               } else 
+ 380  14                                                           if(HourH==2 & HourL==3 & MinL==0 & MinH==0 & SecH==0 & SecL==0)
+ 381  14                                                         {
+ 382  15                                                           HourH=0;
+ 383  15                                                           HourL=0;
+ 384  15                                                             LCD_command_write(0xC8);
+ 385  15                                                             LCD_message_write(ascii[HourL]);
+ 386  15                                                             LCD_command_write(0xC7);
+ 387  15                                                             LCD_message_write(ascii[HourH]); 
+ 388  15                                                          }
+ 389  14                                                         else{HourL++;}
+ 390  14                                                             LCD_command_write(0xC8);
+ 391  14                                                             LCD_message_write(ascii[HourL]);
+ 392  14                                                             LCD_command_write(0xC7);
+ 393  14                                                             LCD_message_write(ascii[HourH]); 
+ 394  14                                                          } 
+ 395  13                                                        }
+ 396  12                                                        //////////////   Sec H ////////////////
+ 397  12                                                      if(MinL==9)
+ 398  12                                                        {
+ 399  13                                                          MinL=0;
+ 400  13                                                          flag=33;
+ 401  13                                                        }     
+ 402  12                                                    }
+ 403  11                                                    /////////////////////  Minute LLLLLLLLLLLLLLLL///////////////        
+ 404  11                                                  if(MinH==6)
+ 405  11                                                    {
+ 406  12                                                      MinH=0;
+ 407  12                                                      flag=55;
+ 408  12                                                    } 
+ 409  11                                                  }
+ 410  10                                                        ///////// Minute H /////////////////////////
+ 411  10                                            if(HourL==9)
+ 412  10                                              {
+ 413  11                                                HourL=0;
+ 414  11                                              }
+ 415  10                                            }
+ 416   9                                        //////////// Hour LLLLLLLLLLLL/////////////////    
+ 417   9                                          if(HourH==3)
+ 418   9                                           {
+ 419  10                                            HourH=0;
+ 420  10                                           }  
+ 421   9                                          }
+ 422   8                                  ////////////  Hour H //////////////////
+ 423   8                                  }
+ 424   7                              }
+C51 COMPILER V9.60.0.0   COLLEGBL                                                          06/23/2022 11:36:29 PAGE 8   
+
+ 425   6                          }
+ 426   5                      }
+ 427   4                }
+ 428   3               while(key_value==readkey());
+ 429   3             }
+ 430   2           }
+ 431   1         while(1);
+ 432   1       }
+ 433          
+ 434          void LCD_Initialization()
+ 435           { 
+ 436   1           LCD_command_write(0X38);
+ 437   1           LCD_command_write(0X10);
+ 438   1           LCD_command_write(0X0C);
+ 439   1           LCD_command_write(0X06);
+ 440   1           LCD_command_write(0X01);
+ 441   1       }
+ 442           
+ 443          void LCD_command_write(unsigned char command_value)
+ 444           {
+ 445   1           LCD_data= command_value;
+ 446   1           LCD_register_select= control_register;
+ 447   1           LCD_enable=1;
+ 448   1           delay(10);
+ 449   1           LCD_enable=0;
+ 450   1           delay(10);
+ 451   1       }
+ 452           
+ 453          void LCD_message_write(unsigned char message_charactor)
+ 454           {
+ 455   1            LCD_data= message_charactor;
+ 456   1            LCD_register_select= data_register;
+ 457   1            LCD_enable=1;
+ 458   1            delay(10);
+ 459   1            LCD_enable=0;
+ 460   1            delay(10);
+ 461   1       }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1891    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =    115       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

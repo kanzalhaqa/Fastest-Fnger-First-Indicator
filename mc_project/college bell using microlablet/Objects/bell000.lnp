@@ -1,0 +1,4 @@
+".\Objects\collegbl.obj" 
+TO ".\Objects\bell000" 
+PRINT(".\Listings\bell000.m51") RAMSIZE(256) 
+CODE( 0X0000-0XFFFF )
